@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | EduFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-50 flex hidden" id="mainBody">
+
+    <aside class="w-64 bg-white h-screen border-r border-gray-200 p-6 flex flex-col fixed z-50">
+        <div class="mb-10 flex items-center gap-2">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">E</div>
+            <h2 class="text-xl font-bold text-gray-800">EduFlow</h2>
+        </div>
+
+        <nav class="space-y-2 flex-1">
+            <a href="dashboard.html"
+                class="flex items-center gap-3 p-3 bg-indigo-50 text-indigo-700 rounded-xl font-bold">Dashboard</a>
+            <a href="documents.html"
+                class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition">Documents</a>
+            <a href="exams.html"
+                class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition">Exams</a>
+            <a href="assignments.html"
+                class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition">Assignments</a>
+            <a href="attendance.html"
+                class="flex items-center gap-3 p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition">Attendance</a>
+        </nav>
+
+        <div class="pt-6 border-t hidden">
+            <!-- Logout Moved to Header -->
+        </div>
+    </aside>
+
+    <main class="ml-64 p-8 w-full">
+        <header class="flex justify-between items-center mb-10 relative">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Hello, <span id="userNameDisplay">Student</span>!</h1>
+                <p class="text-gray-500" id="dateDisplay"></p>
+            </div>
+
+            <div class="relative group z-[60]">
+                <button class="flex items-center gap-3 hover:scale-105 transition focus:outline-none">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-700" id="headerUserName">Student</p>
+                        <p class="text-xs text-green-500">Online</p>
+                    </div>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                        class="w-12 h-12 rounded-full border-2 border-indigo-500 shadow-lg bg-gray-100 object-cover">
+                </button>
+
+                <div
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden hidden group-hover:block transition-all duration-200 origin-top-right">
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                        <p class="text-xs font-bold text-gray-400 uppercase">Account</p>
+                        <p class="text-sm font-bold text-gray-800 truncate" id="dropdownUserName">Student</p>
+                    </div>
+                    <a href="settings.html"
+                        class="block px-4 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2">
+                        ⚙️ Settings
+                    </a>
+                    <button onclick="localStorage.removeItem('userName'); window.location.href='index.html';"
+                        class="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 transition font-bold flex items-center gap-2">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+            <div
+                class="bg-gradient-to-br from-indigo-600 to-blue-600 p-6 rounded-2xl text-white shadow-lg relative overflow-hidden group hover:scale-105 transition duration-300">
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start">
+                        <p class="text-indigo-100 text-sm font-medium">Present %</p>
+                        <span id="attPercentBadge" class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">--%</span>
+                    </div>
+
+                    <h2 class="text-3xl font-bold mt-2 mb-1">
+                        <span id="attPresent">0</span> <span class="text-lg font-normal text-indigo-200">/ <span
+                                id="attTotal">0</span></span>
+                    </h2>
+                    <p class="text-indigo-200 text-xs mb-4">Classes Attended</p>
+
+                    <a href="attendance.html"
+                        class="block bg-white text-center text-indigo-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition shadow-sm w-full">
+                        Manage Attendance →
+                    </a>
+                </div>
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full"></div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-sm font-medium">Saved Documents</p>
+                <h2 class="text-4xl font-bold my-2 text-gray-800" id="docCount">0</h2>
+                <a href="documents.html" class="text-indigo-600 text-xs font-bold hover:underline">Go to Vault →</a>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-gray-400 text-sm font-medium">Submitted Assignments</p>
+                <h2 class="text-4xl font-bold my-2 text-gray-800" id="assignCount">0</h2>
+                <a href="assignments.html" class="text-indigo-600 text-xs font-bold hover:underline">View History →</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. CONFIGURATION
+        // ==========================================
+        const routine = {
+            "Monday": [
+                { time: "08:00 - 09:40", subject: "Professional Skills Lab (Suruchi Ma'am)[NYB 006]" }, // Assumed Lab = 2hrs
+                { time: "09:40 - 10:30", subject: "Basic Electrical Electronics (Roopayali Ma'am)[NYB 202]" },
+                { time: "10:30 - 11:20", subject: "Engineering Mathematics (Rakesh Sir)[NYB 202]" }
+            ],
+            "Tuesday": [
+                { time: "08:00 - 09:40", subject: "Advance Excel Lab (Raminder Ma'am)[NYB 405]" }, // Assumed Lab = 2hrs
+                { time: "09:40 - 11:20", subject: "C++ Lab (Nidhi Ma'am)[NYB 406]" }, // Assumed Lab = 2hrs
+                { time: "11:20 - 12:05", subject: "Engineering Mathematics (Rakesh Sir)[NYB 313]" }
+            ],
+            "Wednesday": [
+                { time: "08:00 - 09:40", subject: "AutoCAD Lab (Anubhav Sir)[VIB 217]" }, // Assumed Lab = 2hrs
+                { time: "09:40 - 10:30", subject: "Basic Electrical Electronics (Roopayali Ma'am)[NYB 202]" },
+                { time: "11:20 - 12:05", subject: "Applied Physics (Rishi Raj Sir)[NYB 202]" }
+            ],
+            "Thursday": [
+                { time: "08:00 - 08:50", subject: "Applied Physics (Rishi Raj Sir)[NYB 202]" },
+                { time: "08:50 - 09:40", subject: "C++ (Nidhi Ma'am)[NYB 202]" },
+                { time: "09:40 - 11:20", subject: "Applied Physics Lab (Rishi Raj Sir)[VIB 113]" }, // Assumed Lab = 2hrs
+                { time: "12:05 - 12:50", subject: "Maths Tut (Rakesh Sir)[NYB 218]" }
+            ],
+            "Friday": [
+                { time: "08:00 - 08:50", subject: "Basic Electrical Electronics (Roopayali Ma'am)[NYB 202]" },
+                { time: "08:50 - 09:40", subject: "Engineering Mathematics (Rakesh Sir)[NYB 202]" },
+                { time: "10:30 - 11:20", subject: "C++ (Nidhi Ma'am)[NYB 107]" },
+                { time: "11:20 - 12:50", subject: "Advance Excel Lab (Raminder Ma'am)[NYB 405]" } // Assumed Lab = 2hrs
+            ],
+            "Saturday": [
+                { time: "08:00 - 08:50", subject: "Applied Physics (Rishi Raj Sir)[NYB 302]" },
+                { time: "08:50 - 09:40", subject: "Professional Skills (Suruchi Ma'am)[NYB 106]" },
+                { time: "09:40 - 11:20", subject: "C++ Lab (Nidhi Ma'am)[NYB 218]" } // Assumed Lab = 2hrs
+            ],
+            "Sunday": []
+
+        };
+        const START_DATE_STR = "2026-01-18";
+
+        // ==========================================
+        // 2. INIT
+        // ==========================================
+        if (!localStorage.getItem('userName')) window.location.href = "index.html";
+        else {
+            document.getElementById('mainBody').classList.remove('hidden');
+            const uName = localStorage.getItem('userName');
+            document.getElementById('userNameDisplay').innerText = uName.split(' ')[0];
+
+            // UPDATE PROFILE NAMES & PHOTO
+            if (document.getElementById('headerUserName')) document.getElementById('headerUserName').innerText = uName;
+            if (document.getElementById('dropdownUserName')) document.getElementById('dropdownUserName').innerText = uName;
+
+            const uPhoto = localStorage.getItem('userPhoto');
+            const img = document.getElementById('headerUserName').parentElement.parentElement.querySelector('img');
+            if (img) img.src = uPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${uName}`;
+
+            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        const getLocalISODate = (d) => { const z = d.getTimezoneOffset() * 60000; return new Date(d.getTime() - z).toISOString().split('T')[0]; };
+
+        let db;
+
+        const request = indexedDB.open("EduFlowDB", 3);
+        request.onupgradeneeded = function (e) {
+            db = e.target.result;
+            ["attendance", "holidays", "documents", "assignments", "daily_logs"].forEach(s => {
+                if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: "id", autoIncrement: true });
+            });
+        };
+        request.onsuccess = function (e) {
+            db = e.target.result;
+
+            // --- 1. SIMPLE COUNTS (DIRECT DB ACCESS) ---
+            db.transaction("documents", "readonly").objectStore("documents").count().onsuccess = (e) => document.getElementById('docCount').innerText = e.target.result;
+            db.transaction("assignments", "readonly").objectStore("assignments").count().onsuccess = (e) => document.getElementById('assignCount').innerText = e.target.result;
+
+            // --- 2. ATTENDANCE CALCULATION logic synced with attendance.html ---
+            calculateStats();
+        };
+
+        function getCleanSubjectName(fullName) { return fullName.split(' (')[0].trim(); }
+
+        async function calculateStats() {
+            if (!db) return;
+
+            const getAll = (store) => new Promise(r => db.transaction(store, "readonly").objectStore(store).getAll().onsuccess = e => r(e.target.result));
+
+            // Get Data
+            const loggedDays = await getAll("daily_logs");
+            const allHolidays = await getAll("holidays");
+            const allAttendance = await getAll("attendance");
+
+            const savedDatesSet = new Set(loggedDays.map(l => l.id));
+            const holidaySet = new Set(allHolidays.map(h => h.id));
+            const attendanceSet = new Set(allAttendance.map(a => a.id));
+
+            let totalClasses = 0;
+            let totalPresent = 0;
+
+            // Iterate ONLY through saved dates found in daily_logs
+            savedDatesSet.forEach(dStr => {
+                // If it's a holiday, skip calculation for classes
+                if (holidaySet.has(dStr)) return;
+
+                // Determine Day Name
+                const dateObj = new Date(dStr);
+                const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dateObj.getDay()];
+                const classes = routine[dayName] || [];
+
+                classes.forEach(cls => {
+                    const id = `${dStr}_${cls.time}_${cls.subject}`;
+                    totalClasses++;
+                    if (attendanceSet.has(id)) {
+                        totalPresent++;
+                    }
+                });
+            });
+
+            updateDashboardCard(totalClasses, totalPresent);
+        }
+
+        function updateDashboardCard(T, P) {
+            const pct = T === 0 ? 0 : Math.round((P / T) * 100);
+
+            document.getElementById('attPresent').innerText = P;
+            document.getElementById('attTotal').innerText = T;
+            document.getElementById('attPercentBadge').innerText = T === 0 ? "--%" : pct + "%";
+
+            const badge = document.getElementById('attPercentBadge');
+            // Reset classes
+            badge.className = "px-2 py-0.5 rounded text-xs font-bold";
+
+            if (T === 0) {
+                badge.classList.add('bg-white/20', 'text-white');
+            } else if (pct < 75) {
+                badge.classList.add('text-red-600', 'bg-red-100');
+            } else {
+                badge.classList.add('text-green-700', 'bg-green-100');
+            }
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('userName');
+            window.location.href = "index.html";
+        });
+    </script>
+</body>
+
+</html>

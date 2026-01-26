@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments | EduFlow (Unlimited)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-50 flex hidden" id="assignBody">
+
+    <aside class="w-64 bg-white h-screen border-r fixed p-6">
+        <h2 class="text-xl font-bold text-indigo-600 mb-10">EduFlow</h2>
+        <nav class="space-y-2">
+            <a href="dashboard.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Dashboard</a>
+            <a href="documents.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Documents</a>
+            <a href="exams.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Exams</a>
+            <a href="assignments.html"
+                class="block p-3 bg-indigo-50 text-indigo-700 font-bold rounded-lg">Assignments</a>
+            <a href="attendance.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Attendance</a>
+        </nav>
+    </aside>
+
+    <main class="ml-64 p-10 w-full">
+        <div class="flex justify-between items-center mb-6 relative">
+            <h1 class="text-3xl font-bold">Assignment Manager</h1>
+
+            <div class="relative group z-[60]">
+                <button class="flex items-center gap-3 hover:scale-105 transition focus:outline-none">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-700" id="headerUserName">Student</p>
+                        <p class="text-xs text-green-500">Online</p>
+                    </div>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                        class="w-12 h-12 rounded-full border-2 border-indigo-500 shadow-lg bg-gray-100 object-cover">
+                </button>
+
+                <div
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden hidden group-hover:block transition-all duration-200 origin-top-right">
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                        <p class="text-xs font-bold text-gray-400 uppercase">Account</p>
+                        <p class="text-sm font-bold text-gray-800 truncate" id="dropdownUserName">Student</p>
+                    </div>
+                    <a href="settings.html"
+                        class="block px-4 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2">
+                        ⚙️ Settings
+                    </a>
+                    <button onclick="localStorage.removeItem('userName'); window.location.href='index.html';"
+                        class="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 transition font-bold flex items-center gap-2">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 h-fit">
+                <h2 class="font-bold text-gray-800 mb-4">Submit Assignment</h2>
+                <div class="space-y-4">
+                    <input type="text" id="subject" placeholder="Subject (e.g. Math)"
+                        class="w-full p-2 border rounded-lg">
+                    <input type="text" id="assignTitle" placeholder="Title (e.g. Homework 1)"
+                        class="w-full p-2 border rounded-lg">
+                    <input type="file" id="fileInput" accept=".pdf,.png,.jpg" class="w-full text-sm text-gray-500">
+
+                    <p class="text-xs text-green-600 font-bold">✓ High Capacity Storage Active</p>
+
+                    <button onclick="uploadAssignment()"
+                        class="w-full bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700">Submit</button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-4">
+                <h2 class="font-bold text-gray-800">Submission History</h2>
+                <div id="assignList" class="space-y-3"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. Check Login
+        if (!localStorage.getItem('userName')) window.location.href = "index.html";
+        else {
+            document.getElementById('assignBody').classList.remove('hidden');
+            const uName = localStorage.getItem('userName');
+            if (document.getElementById('headerUserName')) document.getElementById('headerUserName').innerText = uName;
+            if (document.getElementById('dropdownUserName')) document.getElementById('dropdownUserName').innerText = uName;
+
+            const uPhoto = localStorage.getItem('userPhoto');
+            const img = document.getElementById('headerUserName').parentElement.parentElement.querySelector('img');
+            if (img) img.src = uPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${uName}`;
+        }
+
+        // 2. Open Database (Same DB as Documents)
+        let db;
+        const request = indexedDB.open("EduFlowDB", 1);
+
+        request.onupgradeneeded = function (event) {
+            db = event.target.result;
+            // Create stores if they don't exist
+            if (!db.objectStoreNames.contains("documents")) {
+                db.createObjectStore("documents", { keyPath: "id", autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains("assignments")) {
+                db.createObjectStore("assignments", { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = function (event) {
+            db = event.target.result;
+            loadAssignments();
+        };
+
+        // 3. Upload Logic
+        function uploadAssignment() {
+            const subject = document.getElementById('subject').value;
+            const title = document.getElementById('assignTitle').value;
+            const file = document.getElementById('fileInput').files[0];
+
+            if (!file || !subject || !title) { alert("Please fill all fields!"); return; }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const transaction = db.transaction(["assignments"], "readwrite");
+                const store = transaction.objectStore("assignments");
+
+                const newAssign = {
+                    subject: subject,
+                    title: title,
+                    date: new Date().toLocaleDateString(),
+                    data: e.target.result // Base64 Content
+                };
+
+                store.add(newAssign);
+
+                transaction.oncomplete = function () {
+                    alert("Assignment Submitted!");
+                    loadAssignments();
+                    // Clear inputs
+                    document.getElementById('subject').value = "";
+                    document.getElementById('assignTitle').value = "";
+                    document.getElementById('fileInput').value = "";
+                };
+
+                transaction.onerror = function () {
+                    alert("Error! File might be too huge.");
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 4. Load Logic
+        function loadAssignments() {
+            const list = document.getElementById('assignList');
+            list.innerHTML = "";
+
+            // Check if store exists first (prevent crash on fresh load)
+            if (!db.objectStoreNames.contains("assignments")) return;
+
+            const transaction = db.transaction(["assignments"], "readonly");
+            const store = transaction.objectStore("assignments");
+            const request = store.getAll();
+
+            request.onsuccess = function () {
+                const assigns = request.result;
+                if (assigns.length === 0) {
+                    list.innerHTML = "<p class='text-gray-400 italic'>No assignments submitted.</p>";
+                    return;
+                }
+
+                assigns.reverse().forEach((item) => {
+                    const div = document.createElement('div');
+                    div.className = "bg-white p-4 rounded-xl border border-gray-100 flex justify-between items-center";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4 overflow-hidden">
+                            <div class="p-2 bg-indigo-50 text-indigo-500 rounded text-xl">📝</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 truncate w-32">${item.subject}</h4>
+                                <p class="text-sm text-gray-500 truncate w-40">${item.title} • ${item.date}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="viewFile(${item.id})" class="text-indigo-600 text-sm font-bold hover:underline">View PDF</button>
+                            <button onclick="deleteAssign(${item.id})" class="text-red-500 text-sm font-bold hover:underline">Delete</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            };
+        }
+
+        // 5. View & Delete
+        window.deleteAssign = function (id) {
+            if (confirm("Delete this assignment record?")) {
+                const transaction = db.transaction(["assignments"], "readwrite");
+                const store = transaction.objectStore("assignments");
+                store.delete(id);
+                transaction.oncomplete = function () { loadAssignments(); };
+            }
+        }
+
+        window.viewFile = function (id) {
+            const transaction = db.transaction(["assignments"], "readonly");
+            const store = transaction.objectStore("assignments");
+            const request = store.get(id);
+            request.onsuccess = function () {
+                const item = request.result;
+                const win = window.open();
+                win.document.write('<iframe src="' + item.data + '" frameborder="0" style="width:100%; height:100%;" allowfullscreen></iframe>');
+            };
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+        <nav class="space-y-2 flex-1">
+            <a href="dashboard.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Dashboard</a>
+            <a href="documents.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Documents</a>
+            <a href="exams.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Exams</a>
+            <a href="assignments.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Assignments</a>
+            <a href="attendance.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Attendance</a>
+        </nav>
+    </aside>
+
+    <main class="ml-64 p-8 w-full">
+        <div class="flex justify-between items-end mb-8 relative">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800" id="pageHeader">PAGE_TITLE_PLACEHOLDER</h1>
+                <p class="text-gray-500 text-sm mt-1">Classes started from: <span class="font-bold text-gray-700" id="startDateDisplay">19 Jan 2026</span></p>
+            </div>
+            
+            <div class="relative group">
+                <button class="flex items-center gap-3 hover:scale-105 transition focus:outline-none">
+                    <img src="profile.png" class="w-12 h-12 rounded-full border-2 border-indigo-500 shadow-lg object-cover bg-gray-900">
+                </button>
+
+                <!-- Dropdown -->
+                <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden hidden group-hover:block z-[60]">
+                    <a href="#" class="block px-4 py-3 text-gray-700 hover:bg-indigo-50 transition border-b border-gray-100">👤 My Profile</a>
+                    <a href="settings.html" class="block px-4 py-3 text-gray-700 hover:bg-indigo-50 transition border-b border-gray-100">⚙️ Settings</a>
+                    <a href="index.html" onclick="localStorage.removeItem('userName')" class="block w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 transition font-bold">🚪 Logout</a>
+                </div>
+            </div>
+        </div>

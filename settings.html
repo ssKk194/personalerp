@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management | EduFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-100 flex hidden" id="mainBody">
+
+    <aside class="w-64 bg-white h-screen border-r fixed p-6 z-40">
+        <h2 class="text-xl font-bold text-indigo-600 mb-10">EduFlow</h2>
+        <nav class="space-y-2">
+            <a href="dashboard.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Dashboard</a>
+            <a href="documents.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Documents</a>
+            <a href="exams.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Exams</a>
+            <a href="assignments.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Assignments</a>
+            <a href="attendance.html" class="block p-3 text-gray-600 hover:bg-gray-100 rounded-lg">Attendance</a>
+        </nav>
+    </aside>
+
+    <main class="ml-64 p-10 w-full max-w-5xl">
+        <header class="flex justify-between items-center mb-10 relative">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">System Management</h1>
+                <p class="text-gray-500">Manage your data backups and system restoration.</p>
+            </div>
+
+            <div class="relative group z-[60]">
+                <button class="flex items-center gap-3 hover:scale-105 transition focus:outline-none">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-700" id="headerUserName">Student</p>
+                        <p class="text-xs text-green-500">Online</p>
+                    </div>
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                        class="w-12 h-12 rounded-full border-2 border-indigo-500 shadow-lg bg-gray-100 object-cover">
+                </button>
+
+                <div
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden hidden group-hover:block transition-all duration-200 origin-top-right">
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                        <p class="text-xs font-bold text-gray-400 uppercase">Account</p>
+                        <p class="text-sm font-bold text-gray-800 truncate" id="dropdownUserName">Student</p>
+                    </div>
+                    <a href="settings.html"
+                        class="block px-4 py-3 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition flex items-center gap-2">
+                        ⚙️ Settings
+                    </a>
+                    <button onclick="localStorage.removeItem('userName'); window.location.href='index.html';"
+                        class="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50 transition font-bold flex items-center gap-2">
+                        🚪 Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mb-8">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <span class="bg-indigo-100 text-indigo-600 w-8 h-8 flex items-center justify-center rounded-lg">1</span>
+                Data Management
+            </h2>
+
+            <div id="statusBox"
+                class="hidden mb-6 p-4 rounded-lg bg-yellow-50 text-yellow-800 text-sm font-bold border border-yellow-200">
+                Ready...
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                <div class="border border-green-200 bg-green-50 rounded-2xl p-6 relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <div
+                            class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-4">
+                            📤</div>
+                        <h3 class="font-bold text-green-900 text-xl">Backup Data</h3>
+                        <p class="text-sm text-green-700 mt-2 mb-6">Create a secure file containing your attendance,
+                            documents, and settings to move to another device.</p>
+                        <button onclick="exportData()"
+                            class="bg-green-600 text-white w-full py-3 rounded-xl font-bold hover:bg-green-700 shadow-md transition">Download
+                            Backup File</button>
+                    </div>
+                </div>
+
+                <div class="border border-blue-200 bg-blue-50 rounded-2xl p-6 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <div
+                            class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-sm mb-4">
+                            📥</div>
+                        <h3 class="font-bold text-blue-900 text-xl">Restore Data</h3>
+                        <p class="text-sm text-blue-700 mt-2 mb-6">Restore your system from a backup file. <br><span
+                                class="font-bold">Warning:</span> This replaces current data.</p>
+                        <input type="file" id="importFile" accept=".json" class="hidden" onchange="importData(this)">
+                        <button onclick="document.getElementById('importFile').click()"
+                            class="bg-blue-600 text-white w-full py-3 rounded-xl font-bold hover:bg-blue-700 shadow-md transition">Select
+                            File to Restore</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t flex justify-between items-center">
+                <p class="text-sm text-gray-500">Need to wipe everything and start fresh?</p>
+                <button onclick="factoryReset()"
+                    class="text-red-500 text-sm font-bold border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition">⚠
+                    Factory Reset</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-center cursor-pointer"
+                onclick="document.getElementById('codeZone').classList.toggle('hidden')">
+                <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider">Advanced: Raw Routine Code</h2>
+                <span class="text-gray-400 text-xs">▼ Show/Hide</span>
+            </div>
+            <div id="codeZone" class="hidden mt-6">
+                <p class="text-xs text-gray-500 mb-2">Edit your JSON routine directly here if needed.</p>
+                <textarea id="routineJson"
+                    class="w-full h-64 p-4 font-mono text-xs bg-gray-900 text-green-400 rounded-xl border-4 border-gray-800 focus:outline-none"
+                    spellcheck="false"></textarea>
+                <button onclick="saveRoutineCode()"
+                    class="mt-4 bg-gray-700 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-black">Save
+                    Routine Code</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- AUTH & INIT ---
+        if (!localStorage.getItem('userName')) window.location.href = "index.html";
+        else {
+            document.getElementById('mainBody').classList.remove('hidden');
+            const uName = localStorage.getItem('userName');
+            if (document.getElementById('headerUserName')) document.getElementById('headerUserName').innerText = uName;
+            if (document.getElementById('dropdownUserName')) document.getElementById('dropdownUserName').innerText = uName;
+
+            const uPhoto = localStorage.getItem('userPhoto');
+            const img = document.getElementById('headerUserName').parentElement.parentElement.querySelector('img');
+            if (img) img.src = uPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${uName}`;
+        }
+
+        // DATABASE CONNECTION
+        let db;
+        const request = indexedDB.open("EduFlowDB", 2);
+
+        request.onupgradeneeded = function (e) {
+            db = e.target.result;
+            ["attendance", "holidays", "documents", "assignments"].forEach(s => {
+                if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: "id", autoIncrement: true });
+            });
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            console.log("DB Connected");
+        };
+        request.onerror = (e) => {
+            alert("Database Error: " + e.target.errorCode);
+        };
+
+        // LOAD ROUTINE CODE
+        document.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem('eduRoutine');
+            if (saved) document.getElementById('routineJson').value = JSON.stringify(JSON.parse(saved), null, 4);
+            else document.getElementById('routineJson').value = "// No custom routine found. Using default.";
+        });
+
+        // --- STATUS HELPER ---
+        function setStatus(msg, type = "info") {
+            const box = document.getElementById('statusBox');
+            box.classList.remove('hidden', 'bg-red-50', 'text-red-800', 'bg-green-50', 'text-green-800', 'bg-yellow-50', 'text-yellow-800');
+
+            if (type === 'error') box.classList.add('bg-red-50', 'text-red-800');
+            else if (type === 'success') box.classList.add('bg-green-50', 'text-green-800');
+            else box.classList.add('bg-yellow-50', 'text-yellow-800');
+
+            box.innerText = msg;
+        }
+
+        // --- FUNCTIONS ---
+
+        function saveRoutineCode() {
+            try {
+                const code = document.getElementById('routineJson').value;
+                const json = JSON.parse(code); // Validate
+                localStorage.setItem('eduRoutine', JSON.stringify(json));
+                alert("Routine Code Saved!");
+            } catch (e) {
+                alert("Error: Invalid JSON Code.\n" + e.message);
+            }
+        }
+
+        // --- DATA ENGINE (BACKUP/RESTORE) ---
+
+        async function exportData() {
+            if (!db) { setStatus("Database not ready yet. Please wait...", "error"); return; }
+
+            setStatus("Preparing Backup... Do not close.", "info");
+
+            try {
+                const data = {
+                    meta: { version: 1, date: new Date().toISOString() },
+                    settings: {
+                        header: localStorage.getItem('eduHeader'),
+                        start: localStorage.getItem('eduStartDate'),
+                        routine: localStorage.getItem('eduRoutine'),
+                        user: localStorage.getItem('userName')
+                    },
+                    db: {}
+                };
+
+                const stores = ["attendance", "holidays", "documents", "assignments"];
+
+                for (let store of stores) {
+                    if (db.objectStoreNames.contains(store)) {
+                        data.db[store] = await new Promise((resolve, reject) => {
+                            const tx = db.transaction(store, "readonly");
+                            const req = tx.objectStore(store).getAll();
+                            req.onsuccess = () => resolve(req.result);
+                            req.onerror = () => reject("Failed to read " + store);
+                        });
+                    }
+                }
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `eduflow_backup_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+
+                setStatus("Backup Downloaded Successfully!", "success");
+
+            } catch (err) {
+                setStatus("Export Failed: " + err.message, "error");
+            }
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            setStatus("Reading file...", "info");
+
+            const reader = new FileReader();
+
+            reader.onload = async function (e) {
+                try {
+                    // 1. Parse JSON
+                    const data = JSON.parse(e.target.result);
+
+                    // 2. Validate Data
+                    if (!data || !data.meta || !data.db) {
+                        throw new Error("Invalid Backup File Structure (Missing 'db' or 'meta')");
+                    }
+
+                    if (!confirm(`Backup from: ${data.meta.date}\n\nRestore this data? (Current data will be replaced)`)) {
+                        setStatus("Restore Cancelled.", "info");
+                        return;
+                    }
+
+                    // 3. Restore LocalStorage
+                    if (data.settings) {
+                        if (data.settings.header) localStorage.setItem('eduHeader', data.settings.header);
+                        if (data.settings.start) localStorage.setItem('eduStartDate', data.settings.start);
+                        if (data.settings.routine) localStorage.setItem('eduRoutine', data.settings.routine);
+                    }
+
+                    // 4. Restore IndexedDB
+                    const existingStores = Array.from(db.objectStoreNames);
+                    const tx = db.transaction(existingStores, "readwrite");
+
+                    for (let storeName in data.db) {
+                        if (existingStores.includes(storeName)) {
+                            const store = tx.objectStore(storeName);
+                            store.clear(); // Wipe
+                            data.db[storeName].forEach(item => {
+                                try { store.put(item); } catch (e) { console.error("Item skipped", e); }
+                            });
+                        }
+                    }
+
+                    tx.oncomplete = () => {
+                        alert("✅ Restore Complete! The page will now reload.");
+                        location.reload();
+                    };
+
+                    tx.onerror = (e) => {
+                        throw new Error("Database Transaction Failed: " + e.target.error);
+                    };
+
+                } catch (err) {
+                    setStatus("Restore Failed: " + err.message, "error");
+                    alert("Error: " + err.message);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function factoryReset() {
+            if (confirm("ARE YOU SURE?\nThis will delete ALL attendance, documents, and settings permanently.")) {
+                localStorage.clear();
+                const req = indexedDB.deleteDatabase("EduFlowDB");
+                req.onsuccess = () => {
+                    alert("System Reset. Redirecting to Login...");
+                    window.location.href = "index.html";
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

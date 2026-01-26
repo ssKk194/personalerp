@@ -1,0 +1,36 @@
+/* Global Styles */
+
+
+/* Restoring standard branding colors by removing overrides */
+
+/* ACTIVE/HOVER STATES */
+/* Removed active/hover neon overrides */
+
+a:hover,
+button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.2);
+}
+
+.hover\:bg-gray-100:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+
+/* Removed border overrides */
+
+/* Specific Fixes */
+#userNameDisplay {
+    color: #4f46e5;
+    /* indigo-600 */
+}
+
+/* Ensure nice input fields */
+
+
+input::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Removed custom scrollbar overrides */
