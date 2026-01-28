@@ -95,17 +95,16 @@
 
         // 2. Open Database (Same DB as Documents)
         let db;
-        const request = indexedDB.open("EduFlowDB", 1);
+        const request = indexedDB.open("EduFlowDB", 4);
 
         request.onupgradeneeded = function (event) {
             db = event.target.result;
             // Create stores if they don't exist
-            if (!db.objectStoreNames.contains("documents")) {
-                db.createObjectStore("documents", { keyPath: "id", autoIncrement: true });
-            }
-            if (!db.objectStoreNames.contains("assignments")) {
-                db.createObjectStore("assignments", { keyPath: "id", autoIncrement: true });
-            }
+            ["documents", "assignments", "attendance", "holidays", "daily_logs"].forEach(store => {
+                if (!db.objectStoreNames.contains(store)) {
+                    db.createObjectStore(store, { keyPath: "id", autoIncrement: true });
+                }
+            });
         };
 
         request.onsuccess = function (event) {
