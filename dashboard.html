@@ -13,7 +13,8 @@
 
     <aside class="w-64 bg-white h-screen border-r border-gray-200 p-6 flex flex-col fixed z-50">
         <div class="mb-10 flex items-center gap-2">
-            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">E</div>
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold"
+                id="appLogoText">E</div>
             <h2 class="text-xl font-bold text-gray-800">EduFlow</h2>
         </div>
 
@@ -48,7 +49,7 @@
                         <p class="text-sm font-bold text-gray-700" id="headerUserName">Student</p>
                         <p class="text-xs text-green-500">Online</p>
                     </div>
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" id="headerProfileImg"
                         class="w-12 h-12 rounded-full border-2 border-indigo-500 shadow-lg bg-gray-100 object-cover">
                 </button>
 
@@ -164,8 +165,11 @@
             if (document.getElementById('dropdownUserName')) document.getElementById('dropdownUserName').innerText = uName;
 
             const uPhoto = localStorage.getItem('userPhoto');
-            const img = document.getElementById('headerUserName').parentElement.parentElement.querySelector('img');
+            const img = document.getElementById('headerProfileImg');
             if (img) img.src = uPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${uName}`;
+
+            const appLogo = document.getElementById('appLogoText');
+            if (appLogo) appLogo.innerText = uName.charAt(0).toUpperCase();
 
             document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
@@ -174,7 +178,7 @@
 
         let db;
 
-        const request = indexedDB.open("EduFlowDB", 3);
+        const request = indexedDB.open("EduFlowDB", 4);
         request.onupgradeneeded = function (e) {
             db = e.target.result;
             ["attendance", "holidays", "documents", "assignments", "daily_logs"].forEach(s => {
