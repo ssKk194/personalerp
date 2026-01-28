@@ -308,12 +308,14 @@
         let db, activeDate = new Date();
         let globalStats = { total: 0, present: 0, subjects: {} };
 
-        const request = indexedDB.open("EduFlowDB", 3); // Bump version for new store
+        const request = indexedDB.open("EduFlowDB", 4); // Bump version for new store
         request.onupgradeneeded = function (e) {
             db = e.target.result;
-            if (!db.objectStoreNames.contains("attendance")) db.createObjectStore("attendance", { keyPath: "id" });
-            if (!db.objectStoreNames.contains("holidays")) db.createObjectStore("holidays", { keyPath: "id" });
-            if (!db.objectStoreNames.contains("daily_logs")) db.createObjectStore("daily_logs", { keyPath: "id" }); // Tracks saved days
+            ["documents", "assignments", "attendance", "holidays", "daily_logs"].forEach(store => {
+                if (!db.objectStoreNames.contains(store)) {
+                    db.createObjectStore(store, { keyPath: "id", autoIncrement: true });
+                }
+            });
         };
         request.onsuccess = function (e) {
             db = e.target.result;
